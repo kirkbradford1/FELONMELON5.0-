@@ -1,0 +1,664 @@
+"use client";
+
+import { useState } from "react";
+
+const TOKENS = {
+  bg: "#06080d",
+  surface: "#0c1018",
+  surfaceRaised: "#111827",
+  border: "rgba(255,255,255,0.07)",
+  borderAccent: "rgba(237,120,36,0.35)",
+  melon: "#ED7824",
+  melonDim: "rgba(237,120,36,0.10)",
+  green: "#22c55e",
+  muted: "#64748b",
+  body: "#e2e8f0",
+};
+
+const coaches = [
+  {
+    name: "NIKOLA",
+    title: "The Disambiguator",
+    trigger: "You just arrived and nothing is clear yet.",
+    bio: "Nikola doesn't push. He listens, maps the terrain, and figures out what you actually need before sending you anywhere. Opens with one question: \"What are the three biggest obstacles in your life right now?\"",
+    note: "Nikola never commits — he visits.",
+    color: "#64748b",
+  },
+  {
+    name: "ATLAS",
+    title: "The Executor",
+    trigger: "You know what needs to happen and you need someone to hold you to it.",
+    bio: "Atlas doesn't do feelings. He does action items, deadlines, and accountability. If you're ready to move, Atlas is already moving.",
+    note: null,
+    color: "#ED7824",
+  },
+  {
+    name: "CURIE",
+    title: "The Mirror",
+    trigger: "You need to understand why before you can figure out what.",
+    bio: "Curie sits in the reflection with you. Pattern recognition. Root causes. The stuff underneath the stuff.",
+    note: null,
+    color: "#a78bfa",
+  },
+  {
+    name: "GABRIEL",
+    title: "The Stabilizer",
+    trigger: "Things are fragile and one wrong move matters.",
+    bio: "Gabriel specializes in high-risk moments. Crisis adjacent. Relapse adjacent. The edge. He doesn't panic. He anchors.",
+    note: null,
+    color: "#22c55e",
+  },
+  {
+    name: "HYPATIA",
+    title: "The Strategist",
+    trigger: "You're ready to think bigger than survival.",
+    bio: "Hypatia works in systems. Long game. Economic architecture. What does winning actually look like in five years — and what's the path from here.",
+    note: null,
+    color: "#38bdf8",
+  },
+];
+
+const domains = [
+  "Employment",
+  "Housing",
+  "Finances",
+  "Recovery",
+  "Legal",
+  "Mental Health",
+  "Community",
+  "Relationships",
+];
+
+const steps = [
+  {
+    num: "01",
+    title: "CHECK IN",
+    body: "Show up. That's step one. Daily check-ins build your baseline and start the clock on your proof timeline.",
+  },
+  {
+    num: "02",
+    title: "BUILD RECEIPTS",
+    body: "Every action gets logged. Employment contacts, housing applications, meetings attended, goals hit. Verified. Dated. Yours.",
+  },
+  {
+    num: "03",
+    title: "SHAPE YOUR STORY",
+    body: "Your FM Score aggregates across 8 domains. Narrative tools help you translate that into language gatekeepers understand.",
+  },
+  {
+    num: "04",
+    title: "PRESENT YOUR PROOF",
+    body: "Export your proof packet. Hand it to a landlord. Walk into an interview with it. Let the documentation do the talking.",
+  },
+];
+
+export default function LandingPage() {
+  const [activeCoach, setActiveCoach] = useState(0);
+
+  return (
+    <div
+      style={{
+        backgroundColor: TOKENS.bg,
+        color: TOKENS.body,
+        fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+        minHeight: "100vh",
+        overflowX: "hidden",
+      }}
+    >
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&family=Bebas+Neue&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        .melon { color: #ED7824; }
+        .green { color: #22c55e; }
+        .muted { color: #64748b; }
+
+        .hero-headline {
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: clamp(72px, 14vw, 180px);
+          line-height: 0.9;
+          letter-spacing: 0.02em;
+          color: #e2e8f0;
+        }
+
+        .section-label {
+          font-size: 11px;
+          letter-spacing: 0.25em;
+          text-transform: uppercase;
+          color: #ED7824;
+          font-weight: 500;
+        }
+
+        .brutalist-border {
+          border: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .brutalist-border-melon {
+          border: 1px solid rgba(237,120,36,0.35);
+        }
+
+        .btn-primary {
+          background: #ED7824;
+          color: #06080d;
+          border: none;
+          padding: 14px 32px;
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: opacity 0.15s;
+        }
+        .btn-primary:hover { opacity: 0.85; }
+
+        .btn-ghost {
+          background: transparent;
+          color: #e2e8f0;
+          border: 1px solid rgba(255,255,255,0.2);
+          padding: 14px 32px;
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 13px;
+          font-weight: 500;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: border-color 0.15s;
+        }
+        .btn-ghost:hover { border-color: #ED7824; color: #ED7824; }
+
+        .stat-block {
+          border-left: 2px solid #ED7824;
+          padding: 8px 0 8px 20px;
+        }
+
+        .step-card {
+          border-top: 2px solid rgba(237,120,36,0.35);
+          padding: 32px 24px;
+          background: #0c1018;
+          flex: 1;
+          min-width: 220px;
+        }
+
+        .coach-tab {
+          padding: 12px 20px;
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.15em;
+          cursor: pointer;
+          border: 1px solid rgba(255,255,255,0.07);
+          background: transparent;
+          color: #64748b;
+          transition: all 0.15s;
+          text-transform: uppercase;
+        }
+        .coach-tab.active {
+          background: rgba(237,120,36,0.10);
+          border-color: rgba(237,120,36,0.35);
+          color: #ED7824;
+        }
+        .coach-tab:hover:not(.active) {
+          color: #e2e8f0;
+          border-color: rgba(255,255,255,0.15);
+        }
+
+        .domain-pill {
+          border: 1px solid rgba(255,255,255,0.07);
+          padding: 8px 16px;
+          font-size: 11px;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #64748b;
+          background: #0c1018;
+        }
+
+        .score-ring {
+          width: 160px;
+          height: 160px;
+          border-radius: 50%;
+          border: 3px solid rgba(237,120,36,0.35);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          position: relative;
+          background: #0c1018;
+        }
+        .score-ring::before {
+          content: '';
+          position: absolute;
+          inset: 8px;
+          border-radius: 50%;
+          border: 1px solid rgba(237,120,36,0.15);
+        }
+
+        .pillar-card {
+          background: #0c1018;
+          border: 1px solid rgba(255,255,255,0.07);
+          padding: 40px 32px;
+          flex: 1;
+          min-width: 260px;
+          transition: border-color 0.2s;
+        }
+        .pillar-card:hover {
+          border-color: rgba(237,120,36,0.35);
+        }
+
+        .noise-overlay {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 0;
+          opacity: 0.025;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        @media (max-width: 768px) {
+          .hero-headline { font-size: clamp(56px, 18vw, 100px); }
+          .steps-row { flex-direction: column; }
+          .pillars-row { flex-direction: column; }
+          .free-pro-row { flex-direction: column; }
+        }
+      `}</style>
+
+      <div className="noise-overlay" />
+
+      {/* NAV */}
+      <nav style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+        background: "rgba(6,8,13,0.92)", backdropFilter: "blur(12px)",
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        padding: "0 40px", height: 60,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 24, letterSpacing: "0.08em" }}>
+          FELON<span style={{ color: TOKENS.melon }}>S</span> MELON
+        </div>
+        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+          {["How It Works", "Coaches", "Pricing"].map(l => (
+            <span key={l} style={{ fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", color: TOKENS.muted, cursor: "pointer" }}
+              onMouseEnter={e => (e.currentTarget.style.color = TOKENS.body)}
+              onMouseLeave={e => (e.currentTarget.style.color = TOKENS.muted)}
+            >{l}</span>
+          ))}
+          <button className="btn-primary" style={{ padding: "10px 20px", fontSize: 11 }}
+            onClick={() => {}}>Start Building</button>
+        </div>
+      </nav>
+
+      {/* HERO */}
+      <section style={{
+        minHeight: "100vh", display: "flex", flexDirection: "column",
+        justifyContent: "center", padding: "120px 40px 80px",
+        position: "relative", maxWidth: 1400, margin: "0 auto",
+      }}>
+        <div className="section-label" style={{ marginBottom: 32 }}>// FELON'S MELON — REENTRY INFRASTRUCTURE</div>
+        <h1 className="hero-headline">
+          PROOF.<br />
+          <span style={{ color: TOKENS.melon }}>RECEIPTS.</span><br />
+          READINESS.
+        </h1>
+        <p style={{
+          maxWidth: 560, marginTop: 40, fontSize: 16, lineHeight: 1.7,
+          color: "#94a3b8", fontFamily: "'IBM Plex Mono', monospace",
+        }}>
+          Every landlord and employer gets a printout of your past.<br />
+          Here is how you shut them up with yours.
+        </p>
+
+        <div style={{ display: "flex", gap: 16, marginTop: 48, flexWrap: "wrap" }}>
+          <button className="btn-primary" onClick={() => {}}>Start Building Proof</button>
+          <button className="btn-ghost" onClick={() => {}}>See How It Works</button>
+        </div>
+
+        {/* STAT STRIP */}
+        <div style={{ display: "flex", gap: 48, marginTop: 80, flexWrap: "wrap" }}>
+          {[
+            { val: "8", label: "Life Domains Tracked" },
+            { val: "100%", label: "Verified Actions Only" },
+            { val: "5", label: "AI Coaches On Call" },
+            { val: "Built", label: "By Someone Who Lived It" },
+          ].map(s => (
+            <div className="stat-block" key={s.label}>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 36, color: TOKENS.melon, lineHeight: 1 }}>{s.val}</div>
+              <div style={{ fontSize: 10, letterSpacing: "0.15em", textTransform: "uppercase", color: TOKENS.muted, marginTop: 4 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* decorative line */}
+        <div style={{
+          position: "absolute", right: 40, top: "50%",
+          width: 1, height: "40%", background: `linear-gradient(to bottom, transparent, ${TOKENS.melon}40, transparent)`,
+        }} />
+      </section>
+
+      {/* PROBLEM */}
+      <section style={{ padding: "100px 40px", background: TOKENS.surface, borderTop: `1px solid ${TOKENS.border}`, borderBottom: `1px solid ${TOKENS.border}` }}>
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <div className="section-label" style={{ marginBottom: 24 }}>// THE PROBLEM</div>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(48px, 8vw, 96px)", lineHeight: 0.95, marginBottom: 48 }}>
+            THE MATH<br /><span style={{ color: TOKENS.melon }}>IS BRUTAL</span>
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
+            <div>
+              <p style={{ fontSize: 15, lineHeight: 1.8, color: "#94a3b8" }}>
+                A criminal record costs you <span style={{ color: TOKENS.body, fontWeight: 700 }}>10 to 40 percent of your lifetime earnings</span>. Not because you can't do the work. Because every landlord, every employer, every gatekeeper gets a printout of your past before they ever hear your name.
+              </p>
+              <p style={{ fontSize: 15, lineHeight: 1.8, color: "#94a3b8", marginTop: 24 }}>
+                The system wasn't built to help you recover. It was built to remember. Felon's Melon was built to fight back.
+              </p>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {[
+                { stat: "10–40%", label: "Lifetime earnings loss from a record" },
+                { stat: "68%", label: "Of employers screen out records automatically" },
+                { stat: "Day 1", label: "When your proof file starts working for you" },
+              ].map(i => (
+                <div key={i.label} className="brutalist-border-melon" style={{ padding: "20px 24px", background: TOKENS.melonDim }}>
+                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 40, color: TOKENS.melon }}>{i.stat}</div>
+                  <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: TOKENS.muted, marginTop: 4 }}>{i.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* THREE PILLARS */}
+      <section style={{ padding: "100px 40px" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div className="section-label" style={{ marginBottom: 24 }}>// THE SYSTEM</div>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(40px, 6vw, 72px)", marginBottom: 60 }}>
+            THREE PILLARS.<br /><span style={{ color: TOKENS.melon }}>ONE DIRECTION.</span>
+          </h2>
+          <div className="pillars-row" style={{ display: "flex", gap: 24 }}>
+            {[
+              {
+                icon: "◈",
+                title: "PROOF",
+                desc: "Every verified action you take gets documented. Not by a caseworker. By you. Real receipts for real progress that gatekeepers can't dismiss.",
+                status: "Live at Launch",
+                statusColor: TOKENS.green,
+              },
+              {
+                icon: "◎",
+                title: "NARRATIVE",
+                desc: "Your record tells one story. Your proof file tells another. We help you shape the version gatekeepers actually need to hear.",
+                status: "Coming Soon",
+                statusColor: TOKENS.muted,
+              },
+              {
+                icon: "⬡",
+                title: "FM TOOLS",
+                desc: "Your private workspace. Check-ins, goal tracking, domain scores, and the deeper work that doesn't belong on a resume — but still needs to get done.",
+                status: "Live at Launch",
+                statusColor: TOKENS.green,
+              },
+            ].map(p => (
+              <div className="pillar-card" key={p.title}>
+                <div style={{ fontSize: 32, color: TOKENS.melon, marginBottom: 24 }}>{p.icon}</div>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 36, letterSpacing: "0.05em", marginBottom: 16 }}>{p.title}</div>
+                <p style={{ fontSize: 13, lineHeight: 1.8, color: "#94a3b8", marginBottom: 32 }}>{p.desc}</p>
+                <div style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: p.statusColor }}>
+                  ● {p.status}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section style={{ padding: "100px 40px", background: TOKENS.surface, borderTop: `1px solid ${TOKENS.border}` }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div className="section-label" style={{ marginBottom: 24 }}>// HOW IT WORKS</div>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(40px, 6vw, 72px)", marginBottom: 60 }}>
+            FOUR STEPS.<br /><span style={{ color: TOKENS.melon }}>ONE OUTCOME.</span>
+          </h2>
+          <div className="steps-row" style={{ display: "flex", gap: 2 }}>
+            {steps.map((s, i) => (
+              <div className="step-card" key={s.num}>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 64, color: TOKENS.melon, opacity: 0.3, lineHeight: 1 }}>{s.num}</div>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, letterSpacing: "0.05em", margin: "16px 0 12px" }}>{s.title}</div>
+                <p style={{ fontSize: 12, lineHeight: 1.8, color: "#64748b" }}>{s.body}</p>
+                {i < steps.length - 1 && (
+                  <div style={{ marginTop: 24, height: 1, background: `linear-gradient(to right, ${TOKENS.melon}40, transparent)` }} />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* COACHES */}
+      <section style={{ padding: "100px 40px" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div className="section-label" style={{ marginBottom: 24 }}>// THE COACHES</div>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(40px, 6vw, 72px)", marginBottom: 16 }}>
+            FIVE COACHES.<br /><span style={{ color: TOKENS.melon }}>ONE MATCHED TO WHERE YOU ARE.</span>
+          </h2>
+          <p style={{ color: TOKENS.muted, fontSize: 12, marginBottom: 48, letterSpacing: "0.05em" }}>
+            You don't pick your coach. The system does — based on where you actually are.
+          </p>
+
+          {/* Tabs */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 40, flexWrap: "wrap" }}>
+            {coaches.map((c, i) => (
+              <button
+                key={c.name}
+                className={`coach-tab${activeCoach === i ? " active" : ""}`}
+                onClick={() => setActiveCoach(i)}
+              >{c.name}</button>
+            ))}
+          </div>
+
+          {/* Active Coach */}
+          <div className="brutalist-border-melon" style={{ background: TOKENS.melonDim, padding: "48px 48px" }}>
+            <div style={{ display: "flex", gap: 48, flexWrap: "wrap" }}>
+              <div style={{
+                width: 80, height: 80, borderRadius: "50%",
+                background: coaches[activeCoach].color + "22",
+                border: `2px solid ${coaches[activeCoach].color}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "'Bebas Neue', sans-serif", fontSize: 28,
+                color: coaches[activeCoach].color, flexShrink: 0,
+              }}>
+                {coaches[activeCoach].name[0]}
+              </div>
+              <div style={{ flex: 1, minWidth: 240 }}>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 48, letterSpacing: "0.05em", color: coaches[activeCoach].color }}>
+                  {coaches[activeCoach].name}
+                </div>
+                <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: TOKENS.muted, marginBottom: 24 }}>
+                  {coaches[activeCoach].title}
+                </div>
+                <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: TOKENS.muted, marginBottom: 8 }}>
+                  ASSIGNED WHEN:
+                </div>
+                <p style={{ fontSize: 13, color: TOKENS.body, marginBottom: 24, fontStyle: "italic" }}>
+                  {coaches[activeCoach].trigger}
+                </p>
+                <p style={{ fontSize: 13, lineHeight: 1.8, color: "#94a3b8" }}>
+                  {coaches[activeCoach].bio}
+                </p>
+                {coaches[activeCoach].note && (
+                  <div style={{
+                    marginTop: 24, padding: "12px 20px",
+                    borderLeft: `2px solid ${TOKENS.melon}`,
+                    fontSize: 12, color: TOKENS.melon, fontStyle: "italic",
+                  }}>
+                    {coaches[activeCoach].note}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FM SCORE */}
+      <section style={{ padding: "100px 40px", background: TOKENS.surface, borderTop: `1px solid ${TOKENS.border}` }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", gap: 80, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 280 }}>
+            <div className="section-label" style={{ marginBottom: 24 }}>// FM SCORE</div>
+            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(40px, 6vw, 72px)", marginBottom: 24 }}>
+              YOUR PROOF<br /><span style={{ color: TOKENS.melon }}>SCORE</span>
+            </h2>
+            <p style={{ fontSize: 14, lineHeight: 1.8, color: "#94a3b8", marginBottom: 40 }}>
+              Built from verified real-world actions across 8 life domains. Not assigned by a counselor. Not based on what you say. Based on what you do.
+            </p>
+            <div style={{ fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", color: TOKENS.muted, marginBottom: 16 }}>
+              Domains tracked:
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {domains.map(d => (
+                <span className="domain-pill" key={d}>{d}</span>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+            <div className="score-ring">
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 48, color: TOKENS.melon, lineHeight: 1 }}>—</div>
+              <div style={{ fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: TOKENS.muted, marginTop: 4 }}>LOCKED</div>
+            </div>
+            <div style={{
+              fontSize: 10, letterSpacing: "0.15em", textTransform: "uppercase",
+              color: TOKENS.muted, textAlign: "center", maxWidth: 200,
+            }}>
+              Full score visible after onboarding.<br />Your number is earned, not assigned.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FREE VS PRO */}
+      <section style={{ padding: "100px 40px" }}>
+        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+          <div className="section-label" style={{ marginBottom: 24 }}>// PRICING</div>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(40px, 6vw, 72px)", marginBottom: 16 }}>
+            START FREE.<br /><span style={{ color: TOKENS.melon }}>EARN YOUR WAY UP.</span>
+          </h2>
+          <p style={{ color: TOKENS.muted, fontSize: 12, marginBottom: 60, letterSpacing: "0.05em" }}>
+            The less you need us, the less you pay. That's the model.
+          </p>
+          <div className="free-pro-row" style={{ display: "flex", gap: 24 }}>
+            {[
+              {
+                label: "FREE",
+                accent: TOKENS.muted,
+                items: [
+                  "Access the FM system",
+                  "Daily check-ins",
+                  "Basic domain tracking",
+                  "Coach introductions",
+                  "Limited proof exports",
+                ],
+                cta: "Get Started Free",
+                ghost: true,
+              },
+              {
+                label: "PRO",
+                sub: "$X/mo or Refer 5",
+                accent: TOKENS.melon,
+                items: [
+                  "Full proof packet exports",
+                  "Advanced narrative tools",
+                  "Premium coach access",
+                  "Employment matching eligibility",
+                  "FM Score visible to verified recruiters",
+                  "Subscription cost decreases as FM Score rises",
+                ],
+                cta: "Unlock Pro",
+                ghost: false,
+              },
+            ].map(tier => (
+              <div
+                key={tier.label}
+                style={{
+                  flex: 1, padding: "48px 40px",
+                  border: `1px solid ${tier.accent === TOKENS.melon ? "rgba(237,120,36,0.35)" : "rgba(255,255,255,0.07)"}`,
+                  background: tier.accent === TOKENS.melon ? TOKENS.melonDim : TOKENS.surface,
+                  minWidth: 280,
+                }}
+              >
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 48, color: tier.accent }}>{tier.label}</div>
+                {tier.sub && <div style={{ fontSize: 11, letterSpacing: "0.15em", color: TOKENS.muted, marginBottom: 32 }}>{tier.sub}</div>}
+                <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "24px 0 32px" }} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 40 }}>
+                  {tier.items.map(item => (
+                    <div key={item} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                      <span style={{ color: tier.accent, marginTop: 2, flexShrink: 0 }}>◆</span>
+                      <span style={{ fontSize: 12, lineHeight: 1.6, color: "#94a3b8" }}>{item}</span>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  className={tier.ghost ? "btn-ghost" : "btn-primary"}
+                  style={{ width: "100%" }}
+                  onClick={() => {}}
+                >{tier.cta}</button>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 24, textAlign: "center" }}>
+            <button
+              style={{
+                background: "transparent", border: "none", color: TOKENS.muted,
+                fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase",
+                cursor: "pointer", textDecoration: "underline",
+              }}
+              onClick={() => {}}
+            >Refer 5, Unlock Pro Free →</button>
+          </div>
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section style={{
+        padding: "120px 40px",
+        background: TOKENS.surface,
+        borderTop: `1px solid ${TOKENS.border}`,
+        textAlign: "center",
+      }}>
+        <div style={{ maxWidth: 800, margin: "0 auto" }}>
+          <div className="section-label" style={{ marginBottom: 32 }}>// YOUR MOVE</div>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(48px, 8vw, 96px)", lineHeight: 0.95, marginBottom: 48 }}>
+            YOUR RECORD<br />FOLLOWS YOU.<br />
+            <span style={{ color: TOKENS.melon }}>START MAKING<br />YOUR PROOF<br />FOLLOW LOUDER.</span>
+          </h2>
+          <button className="btn-primary" style={{ fontSize: 14, padding: "18px 48px" }} onClick={() => {}}>
+            Build Your Proof File
+          </button>
+          <div style={{ marginTop: 40, fontSize: 11, letterSpacing: "0.1em", color: TOKENS.muted }}>
+            Built by someone who lived it. Built for everyone still in it.
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{
+        padding: "40px",
+        borderTop: `1px solid ${TOKENS.border}`,
+        display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 24,
+      }}>
+        <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, letterSpacing: "0.08em" }}>
+          FELON<span style={{ color: TOKENS.melon }}>S</span> MELON
+        </div>
+        <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
+          {["About", "How It Works", "Coaches", "Privacy", "Contact"].map(l => (
+            <span key={l} style={{ fontSize: 10, letterSpacing: "0.15em", textTransform: "uppercase", color: TOKENS.muted, cursor: "pointer" }}
+              onMouseEnter={e => (e.currentTarget.style.color = TOKENS.body)}
+              onMouseLeave={e => (e.currentTarget.style.color = TOKENS.muted)}
+            >{l}</span>
+          ))}
+        </div>
+        <div style={{ fontSize: 10, letterSpacing: "0.1em", color: TOKENS.muted }}>
+          © 2025 FELON'S MELON — ALL RIGHTS RESERVED
+        </div>
+      </footer>
+    </div>
+  );
+}
